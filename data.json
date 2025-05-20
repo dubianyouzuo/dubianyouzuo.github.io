@@ -1,0 +1,26 @@
+import requests
+import json
+
+API_KEY = "あなたのOpenWeatherMap APIキー"
+
+locations = [
+    {"name": "東京", "lat": 35.6895, "lon": 139.6917},
+    {"name": "大阪", "lat": 34.6937, "lon": 135.5023},
+    {"name": "札幌", "lat": 43.0667, "lon": 141.3500},
+    {"name": "福岡", "lat": 33.5902, "lon": 130.4017},
+    {"name": "那覇", "lat": 26.2123, "lon": 127.6792},
+]
+
+results = []
+for loc in locations:
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={loc['lat']}&lon={loc['lon']}&units=metric&lang=ja&appid={API_KEY}"
+    r = requests.get(url)
+    data = r.json()
+    results.append({
+        "name": loc["name"],
+        "wind_speed": data.get("wind", {}).get("speed", None),
+        "wind_deg": data.get("wind", {}).get("deg", None)
+    })
+
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, ensure_ascii=False, indent=2)
