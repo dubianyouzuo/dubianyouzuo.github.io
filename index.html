@@ -2,54 +2,36 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>風速・風向一覧（OpenWeather）</title>
+  <title>風速一覧</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
     table { border-collapse: collapse; width: 100%; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
   </style>
 </head>
 <body>
-  <h1>風速・風向 一覧</h1>
-  <table>
+  <h1>最新の風速・風向一覧</h1>
+  <table id="weather-table">
     <thead>
       <tr><th>場所</th><th>風速 (m/s)</th><th>風向 (°)</th></tr>
     </thead>
-    <tbody id="weather-table">
-      <tr><td colspan="3">読み込み中...</td></tr>
-    </tbody>
+    <tbody></tbody>
   </table>
 
   <script>
-    const apiKey = '7364d2edd39d28aba58658268d0e9c26'; // OpenWeatherMapのAPIキー
-    const locations = [
-      { name: "東京", lat: 35.6895, lon: 139.6917 },
-      { name: "大阪", lat: 34.6937, lon: 135.5023 },
-      { name: "札幌", lat: 43.0667, lon: 141.3500 },
-      { name: "福岡", lat: 33.5902, lon: 130.4017 },
-      { name: "那覇", lat: 26.2123, lon: 127.6792 },
-    ];
-
-    const table = document.getElementById("weather-table");
-    table.innerHTML = ""; // 初期行削除
-
-    locations.forEach(loc => {
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${loc.lat}&lon=${loc.lon}&units=metric&appid=${apiKey}&lang=ja`)
-        .then(res => res.json())
-        .then(data => {
-          const windSpeed = data.wind?.speed ?? "N/A";
-          const windDeg = data.wind?.deg ?? "N/A";
-
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${loc.name}</td><td>${windSpeed}</td><td>${windDeg}</td>`;
-          table.appendChild(row);
-        })
-        .catch(err => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${loc.name}</td><td colspan="2">取得失敗</td>`;
-          table.appendChild(row);
+    fetch("data.json")
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.querySelector("#weather-table tbody");
+        tbody.innerHTML = "";
+        data.forEach(item => {
+          const row = `<tr>
+            <td>${item.name}</td>
+            <td>${item.wind_speed ?? "N/A"}</td>
+            <td>${item.wind_deg ?? "N/A"}</td>
+          </tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
         });
-    });
+      });
   </script>
 </body>
 </html>
