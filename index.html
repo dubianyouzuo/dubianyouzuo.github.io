@@ -2,20 +2,26 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Windy地図テスト</title>
+  <title>風速・風向一覧（OpenWeather）</title>
   <style>
-    html, body, #windy {
-      margin: 0;
-      height: 100vh;
-      width: 100%;
-    }
+    body { font-family: sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
   </style>
 </head>
 <body>
-  <div id="windy"></div>
+  <h1>風速・風向 一覧</h1>
+  <table>
+    <thead>
+      <tr><th>場所</th><th>風速 (m/s)</th><th>風向 (°)</th></tr>
+    </thead>
+    <tbody id="weather-table">
+      <tr><td colspan="3">読み込み中...</td></tr>
+    </tbody>
+  </table>
 
-  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
   <script>
+    const apiKey = 'YOUR_API_KEY_HERE'; // OpenWeatherMapのAPIキー
     const locations = [
       { name: "東京", lat: 35.6895, lon: 139.6917 },
       { name: "大阪", lat: 34.6937, lon: 135.5023 },
@@ -24,21 +30,25 @@
       { name: "那覇", lat: 26.2123, lon: 127.6792 },
     ];
 
-    const options = {
-      key: 'BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC', // ここは正しい
-      lat: 35,
-      lon: 135,
-      zoom: 5
-    };
+    const table = document.getElementById("weather-table");
+    table.innerHTML = ""; // 初期行削除
 
-    windyInit(options, windyAPI => {
-      const { map } = windyAPI;
+    locations.forEach(loc => {
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${loc.lat}&lon=${loc.lon}&units=metric&appid=${apiKey}&lang=ja`)
+        .then(res => res.json())
+        .then(data => {
+          const windSpeed = data.wind?.speed ?? "N/A";
+          const windDeg = data.wind?.deg ?? "N/A";
 
-      locations.forEach(loc => {
-        const marker = L.marker([loc.lat, loc.lon])
-          .addTo(map)
-          .bindPopup(`<strong>${loc.name}</strong>`);
-      });
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${loc.name}</td><td>${windSpeed}</td><td>${windDeg}</td>`;
+          table.appendChild(row);
+        })
+        .catch(err => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${loc.name}</td><td colspan="2">取得失敗</td>`;
+          table.appendChild(row);
+        });
     });
   </script>
 </body>
