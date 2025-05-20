@@ -1,6 +1,6 @@
 const options = {
   // Required: Your API key
-  key:BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC,
+  key: BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC,
 
   // Optional: Initial state of the map
   // 名古屋駅を中心に表示
