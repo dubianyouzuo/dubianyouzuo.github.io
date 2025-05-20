@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>24地点の風速と風向</title>
+  <title>Windy地図テスト</title>
   <style>
     html, body, #windy {
       margin: 0;
@@ -13,6 +13,7 @@
 </head>
 <body>
   <div id="windy"></div>
+
   <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
   <script>
     const locations = [
@@ -21,37 +22,22 @@
       { name: "札幌", lat: 43.0667, lon: 141.3500 },
       { name: "福岡", lat: 33.5902, lon: 130.4017 },
       { name: "那覇", lat: 26.2123, lon: 127.6792 },
-      // 以下にさらに19地点追加
     ];
 
     const options = {
-      key: 'BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC', // WindyのAPIキーに置き換えてください
-      lat: 35.0,
-      lon: 135.0,
-      zoom: 5,
+      key: 'BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC', // ここは正しい
+      lat: 35,
+      lon: 135,
+      zoom: 5
     };
 
     windyInit(options, windyAPI => {
-      const { map, picker } = windyAPI;
+      const { map } = windyAPI;
 
       locations.forEach(loc => {
         const marker = L.marker([loc.lat, loc.lon])
           .addTo(map)
-          .bindPopup(`Loading ${loc.name}...`);
-
-        picker.open({ lat: loc.lat, lon: loc.lon });
-        picker.once('pickerOpened', () => {
-          const data = picker.getParams();
-          if (data) {
-            const windInfo = `
-              <strong>${loc.name}</strong><br/>
-              Wind Speed: ${data.wind} m/s<br/>
-              Direction: ${data.windDirection}°
-            `;
-            marker.setPopupContent(windInfo);
-          }
-          picker.close();
-        });
+          .bindPopup(`<strong>${loc.name}</strong>`);
       });
     });
   </script>
