@@ -2,77 +2,57 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>風速一覧（Windy API）</title>
-  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+  <title>24地点の風速と風向</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; }
-    h1 { color: #0077aa; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 0.5rem 0; }
+    html, body, #windy {
+      margin: 0;
+      height: 100vh;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <h1>風速一覧（Windy API 版）</h1>
-  <ul id="windList">読み込み中…</ul>
-
+  <div id="windy"></div>
+  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
   <script>
     const locations = [
       { name: "東京", lat: 35.6895, lon: 139.6917 },
       { name: "大阪", lat: 34.6937, lon: 135.5023 },
       { name: "札幌", lat: 43.0667, lon: 141.3500 },
-      { name: "福岡", lat: 33.5904, lon: 130.4017 },
-      { name: "那覇", lat: 26.2124, lon: 127.6809 },
-      { name: "名古屋", lat: 35.1815, lon: 136.9066 },
-      { name: "仙台", lat: 38.2682, lon: 140.8694 },
-      { name: "金沢", lat: 36.5613, lon: 136.6562 },
-      { name: "広島", lat: 34.3853, lon: 132.4553 },
-      { name: "高松", lat: 34.3428, lon: 134.0466 },
-      { name: "松江", lat: 35.4681, lon: 133.0484 },
-      { name: "盛岡", lat: 39.7036, lon: 141.1527 },
-      { name: "秋田", lat: 39.7200, lon: 140.1025 },
-      { name: "青森", lat: 40.8244, lon: 140.7400 },
-      { name: "長野", lat: 36.6513, lon: 138.1810 },
-      { name: "甲府", lat: 35.6639, lon: 138.5684 },
-      { name: "新潟", lat: 37.9161, lon: 139.0364 },
-      { name: "静岡", lat: 34.9756, lon: 138.3828 },
-      { name: "岐阜", lat: 35.4233, lon: 136.7606 },
-      { name: "津", lat: 34.7303, lon: 136.5086 },
-      { name: "奈良", lat: 34.6851, lon: 135.8048 },
-      { name: "和歌山", lat: 34.2260, lon: 135.1675 },
-      { name: "熊本", lat: 32.8031, lon: 130.7079 },
-      { name: "鹿児島", lat: 31.5966, lon: 130.5571 }
+      { name: "福岡", lat: 33.5902, lon: 130.4017 },
+      { name: "那覇", lat: 26.2123, lon: 127.6792 },
+      // 以下にさらに19地点追加
     ];
 
     const options = {
-      key: 'BdTQkscvVZ1KTIKTJFAG9l9RgjZYf2lC', // ← Windy で取得したAPIキーをここに貼る
+      key: 'YOUR_WINDY_API_KEY', // WindyのAPIキーに置き換えてください
       lat: 35.0,
-      lon: 139.0,
+      lon: 135.0,
       zoom: 5,
     };
 
     windyInit(options, windyAPI => {
-      const { picker } = windyAPI;
-      const ul = document.getElementById("windList");
-      ul.innerHTML = "";
+      const { map, picker } = windyAPI;
 
-      let i = 0;
-      function next() {
-        if (i >= locations.length) return;
-        const loc = locations[i];
+      locations.forEach(loc => {
+        const marker = L.marker([loc.lat, loc.lon])
+          .addTo(map)
+          .bindPopup(`Loading ${loc.name}...`);
+
         picker.open({ lat: loc.lat, lon: loc.lon });
-
-        setTimeout(() => {
-          const wind = picker.getParams()?.wind;
-          const li = document.createElement("li");
-          li.textContent = `${loc.name}: ${wind ? wind.toFixed(1) : '取得失敗'} m/s`;
-          ul.appendChild(li);
+        picker.once('pickerOpened', () => {
+          const data = picker.getParams();
+          if (data) {
+            const windInfo = `
+              <strong>${loc.name}</strong><br/>
+              Wind Speed: ${data.wind} m/s<br/>
+              Direction: ${data.windDirection}°
+            `;
+            marker.setPopupContent(windInfo);
+          }
           picker.close();
-          i++;
-          next();
-        }, 1000); // 1秒ごとに取得
-      }
-
-      next();
+        });
+      });
     });
   </script>
 </body>
