@@ -1,7 +1,7 @@
 import requests
 import json
 
-API_KEY = "7364d2edd39d28aba58658268d0e9c26"
+API_KEY = "660437945e2036a8f3658a833156cd63"
 
 locations = [
     {"name": "東京", "lat": 35.6895, "lon": 139.6917},
